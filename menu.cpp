@@ -197,6 +197,27 @@ class ListaCircular{
             cout<<endl;
             
         }
+    
+        void printRecursive(Nodo<T>*aux){
+
+            if(!aux){
+                return;
+            }
+
+            cout<<aux->m_dato<<" - ";
+            aux=aux->m_sig;
+            if(aux!=this->head){
+                printRecursive(aux);
+            }
+            return;
+
+
+
+        }
+        void printRecursive(){
+            printRecursive(this->head);
+        }    
+    
         bool Find(T value){
 
             if(!this->head){
