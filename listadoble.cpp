@@ -24,18 +24,38 @@ template<typename T>
 class ListaCircularDoble{
     private:
         Nodo<T> * m_head;
-        Nodo<T> * m_actual;
     public:
         ListaCircularDoble(){
             m_head=0;
-            m_actual=0;
         }
-        void push_back(T d){
+        //INSERTAR PARTE FINAL
+        void push_back_r(T d, Nodo<T>*tmp){
+            if(tmp->m_sig!=m_head){
+                push_back_r(d,tmp->m_sig);
+            }
+            else{
+                tmp->m_sig=new Nodo<T>(d);
+                tmp->m_sig->m_sig=m_head;
+                tmp->m_sig->m_ant=tmp;
+                m_head->m_ant=tmp->m_sig;
+            }
+        }
+        void push_back_r(T d){
             if(!m_head){
                 m_head=new Nodo<T>(d);
                 m_head->m_sig=m_head;
                 m_head->m_ant=m_head;
-                m_actual=m_head;
+            }
+            else{
+                Nodo<T>*tmp=m_head;
+                push_back_r(d, tmp);
+            }
+        }
+        void push_back_i(T d){
+            if(!m_head){
+                m_head=new Nodo<T>(d);
+                m_head->m_sig=m_head;
+                m_head->m_ant=m_head;
             }
             else{
                 Nodo<T>*tmp=m_head;
@@ -48,12 +68,30 @@ class ListaCircularDoble{
                 m_head->m_ant=tmp->m_sig;
             }
         }
-        void push_front(T d){
+        //INSERTAR PARTE FRONTAL
+        void push_front_r(Nodo<T>*tmp){
+            tmp->m_sig=m_head;
+            tmp->m_ant=m_head->m_ant;
+            m_head->m_ant->m_sig=tmp;
+            m_head->m_ant=tmp;
+            m_head=tmp;
+        }
+        void push_front_r(T d){
             if(!m_head){
                 m_head=new Nodo<T>(d);
                 m_head->m_sig=m_head;
                 m_head->m_ant=m_head;
-                m_actual=m_head;
+            }
+            else{
+                Nodo<T>*tmp=new Nodo<T>(d);
+                push_front_r(tmp);
+            }
+        }
+        void push_front_i(T d){
+            if(!m_head){
+                m_head=new Nodo<T>(d);
+                m_head->m_sig=m_head;
+                m_head->m_ant=m_head;
             }
             else{
                 Nodo<T>*tmp=new Nodo<T>(d);
@@ -64,12 +102,12 @@ class ListaCircularDoble{
                 m_head=tmp;
             }
         }
+        //INSERTAR POR POSICION
         void insertar_p(int a, T p){
             if(!m_head){
                 m_head=new Nodo<T>(p);
                 m_head->m_sig=m_head;
                 m_head->m_ant=m_head;
-                m_actual=m_head;
                 return;
             }
             int z=1;
@@ -78,7 +116,6 @@ class ListaCircularDoble{
                 tmp=tmp->m_sig;
                 z++;
             }
-            cout<<z<<"--"<<endl;
             Nodo<T>*tmp2=new Nodo<T>(p);
             tmp->m_ant->m_sig=tmp2;
             tmp2->m_ant=tmp->m_ant;
@@ -88,17 +125,59 @@ class ListaCircularDoble{
                 m_head=tmp2;
             }
         }
-        void reinicio(){
-            m_actual=m_head;
+        //IMPRIMIR
+        void imprimir_r(Nodo<T> *tmp){
+            cout<<tmp->m_dato;
+            if(tmp->m_sig!=m_head){
+                cout<<" -- ";
+                imprimir_r(tmp->m_sig);
+            }
+            else{
+                cout<<endl;
+            }
         }
-        void imprimir(){
+        void imprimir_r(){
             if(!m_head){
                 return;
             }
-            cout<<m_actual->m_dato<<endl;
-            m_actual=m_actual->m_sig;
+            Nodo<T>*tmp=m_head;
+            imprimir_r(tmp);
         }
-        void find(T d){
+        void imprimir_i(){
+            if(!m_head){
+                return;
+            }
+            Nodo<T>*tmp=m_head;
+            cout<<tmp->m_dato;
+            while(tmp->m_sig!=m_head){
+                tmp=tmp->m_sig;
+                cout<<" -- "<<tmp->m_dato;
+            }
+            cout<<endl;
+        }
+        //BUSCAR
+        void find_r(T d, Nodo<T> *tmp, int z, int &m){
+            if(d==tmp->m_dato){
+                cout<<"Dato: "<<tmp->m_dato<<", Posicion: "<<z<<endl;
+                m++;
+            }
+            if(tmp->m_sig!=m_head){
+                find_r(d,tmp->m_sig,z+1,m);
+            }
+        }
+        void find_r(T d){
+            if(!m_head){
+                return;
+            }
+            Nodo<T>*tmp=m_head;
+            int z=1;
+            int m=0;
+            find_r(d,tmp,z,m);
+            if(m==0){
+                cout<<"No se ha encontrado el dato"<<endl;
+            }
+        }
+        void find_i(T d){
             if(!m_head){
                 return;
             }
@@ -121,7 +200,25 @@ class ListaCircularDoble{
                 cout<<"No se ha encontrado el dato"<<endl;
             }
         }
-        void max(){
+        //MAXIMO
+        void max_r(T &m,Nodo<T> *tmp){
+            if(m<tmp->m_dato){
+                m=tmp->m_dato;
+            }
+            if(tmp->m_sig!=m_head){
+                max_r(m,tmp->m_sig);
+            }
+        }
+        void max_r(){
+            if(!m_head){
+                return;
+            }
+            Nodo<T>*tmp=m_head;
+            T m=m_head->m_dato;
+            max_r(m,tmp);
+            cout<<"El maximo es: "<<m<<endl;
+        }
+        void max_i(){
             if(!m_head){
                 return;
             }
@@ -138,7 +235,25 @@ class ListaCircularDoble{
             }
             cout<<"El maximo es: "<<m<<endl;
         }
-        void pares(){
+        //PARES
+        void pares_r(int &pares, Nodo<T> *tmp){
+            if(tmp->m_dato%2==0){
+                pares++;
+            }
+            if(tmp->m_sig!=m_head){
+                pares_r(pares, tmp->m_sig);
+            }
+        }
+        void pares_r(){
+            if(!m_head){
+                return;
+            }
+            Nodo<T>*tmp=m_head;
+            int pares=0;
+            pares_r(pares,tmp);
+            cout<<"El numero de pares es: "<<pares<<endl;
+        }
+        void pares_i(){
             if(!m_head){
                 return;
             }
@@ -170,16 +285,17 @@ https://meet.google.com/zzt-qufo-zba?authuser=1
 };
 int main(){
     ListaCircularDoble<int> A;
-    A.insertar_p(1,1);
-    A.insertar_p(2,3);
-    A.insertar_p(3,5);
-    A.insertar_p(1,5);
-    A.reinicio();
-    for (int i=0; i<4; i++){
-        A.imprimir();
-    }
-    A.find(5);
-    A.max();
-    A.pares();
+    A.insertar_p(1,2);
+    A.find_r(3);
+    A.max_r();
+    A.pares_r();
+    A.imprimir_r();
+    A.push_back_r(3);
+    A.push_back_r(3);
+    A.push_back_r(5);
+    A.find_r(3);
+    A.max_r();
+    A.pares_r();
+    A.imprimir_r();
     return 0;
 }
