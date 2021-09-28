@@ -1,4 +1,5 @@
-#include<iostream>
+#include <iostream>
+#include <fstream>
 //Josue 973672214
 //
 //Moises 962936628
@@ -8,6 +9,22 @@ https://meet.google.com/zzt-qufo-zba?authuser=1
 */
 using namespace std;
 
+template <typename T>
+class ListaCircular;
+/*
+ListaCircular<std::string> guardar(std::string file_name){
+    
+    std::ifstream file;
+    file.open (file_name.c_str());
+    ListaCircular<std::string> list;
+    string word;
+    while (file >> word)
+    {
+        list.pushBack(word);
+    }
+    return list;
+}
+*/
 template<typename T>
 class Nodo
 {
@@ -19,17 +36,17 @@ class Nodo
     public:
         Nodo(T d){
             m_dato = d; 
-            m_sig = 0;
+            m_sig = nullptr;
         } 
 };
 template<typename T>
 class ListaCircular{
-    private:
+    public:
         Nodo<T> *head;
     public:
 
         ListaCircular(){
-            this->head = 0;
+            this->head = nullptr;
         }
         void pushBack(T value){
 
@@ -55,19 +72,29 @@ class ListaCircular{
 
         void recursive_push_back(T data)
         {
-            if (!this->head) return;
-            recursive_push_back(T data, Node<T> * node);
+            if (!this->head)
+            {
+                this->head = new Nodo<T>(data);
+                this->head->m_sig = this->head; 
+            }
+            else
+            {
+                recursive_push_back(data,this->head);
+            }
         }
 
-        void recursive_push_back(T data, Node<T>* node)
+        void recursive_push_back(T data, Nodo<T>* & node)
         {
             if (node->m_sig != this->head)
             {
-                recursive_push_back(T data, Node<T>* node);
+                recursive_push_back(data, node->m_sig);
             }
-            Nodo<T> * new_node = new Nodo<T>(data);
-            node->m_sig = new Nodo<T>(value);
-            node->m_sig->m_sig = this->head;
+            else
+            {
+                Nodo<T> * new_node = new Nodo<T>(data);
+                node->m_sig = new_node;
+                new_node->m_sig = this->head;
+            }
         }
 
 
@@ -93,40 +120,67 @@ class ListaCircular{
 
         void recursive_push_front(T data)
         {
-            if (!this->head) return;
-            recursive_push_front(T data, Node<T> * node);
+            if (!this->head)
+            {
+                this->head = new Nodo<T>(data);
+                this->head->m_sig = this->head;
+            }
+            else
+            {
+                recursive_push_front(data, this->head);
+            }
         }
 
-        void recursive_push_front(T data, Node<T>* node)
+        void recursive_push_front(T data, Nodo<T>* & node)
         {
             if (node->m_sig != this->head)
             {
-                recursive_push_back(T data, Node<T>* node);
+                recursive_push_front(data,node->m_sig);
             }
-            Nodo<T> * new_node = new Nodo<T>(data);
-            node->m_sig = new_node;
-            new_node->m_sig = this->head;
-            this->head = new_node;
+            else
+            {
+                Nodo<T> * new_node = new Nodo<T>(data);
+                node->m_sig = new_node;
+                new_node->m_sig = this->head;
+                this->head = new_node;
+            }
         }
 
         void insert(T data, int pos)
         {
-            Nodo<T> * new_node = new Nodo<T>(data);
-            Nodo<T> * aux = this->head;
-            int c {0};
-            while(c != pos)
+            if(pos == 0)
             {
-                aux = aux->m_sig;
-                c++; 
+                push_front(data);
             }
-            new_node->m_sig = aux;
-            aux->m_sig = new_node;
-            if(c == 0)
+            else
             {
-                this->head = new_node;
+                Nodo<T> * new_node = new Nodo<T>(data);
+                Nodo<T> * aux = this->head;
+                int c {1};
+                while(c != pos)
+                {
+                    aux = aux->m_sig;
+                    c++; 
+                }
+                new_node->m_sig = aux->m_sig;
+                aux->m_sig = new_node;
             }
+        }
 
-            
+        void add_alphabet(T data)
+        {
+            if(!this->head) this->insert(data,0);
+            else
+            {
+                Nodo<T> * aux = this->head;
+                int pos = 0;
+                for(;aux->m_sig != this->head; aux = aux->m_sig)
+                {   
+                    if (aux->m_dato < data) break;
+                    pos++;
+                }
+                this->insert(data,pos); 
+            }
         }
         void print(){
 
@@ -167,10 +221,11 @@ class ListaCircular{
             else if(aux->m_dato==num){
 
             }
+            return false;
             
         }
         bool FindRecursive(){
-            
+            return true;
         }
 
         
@@ -196,7 +251,7 @@ class ListaCircular{
         int recursive_max()
         {
             if(!this->head) return 0;
-            int tmp {INT_MIN};
+            int tmp {INT16_MIN};
             if (this->head->m_dato > tmp)
             {
                 tmp = this->head->m_dato;
@@ -222,22 +277,29 @@ class ListaCircular{
 };
 int main(){
 
-    ListaCircular<int>test;
+    ListaCircular<int> test;
     
-    test.push_front(8);
-    test.push_front(1);
-    test.push_front(3);
-    test.push_front(2);
-    test.push_front(6);
-    test.push_front(5);
-    test.push_front(9);
+    test.add_alphabet(8);
+    test.add_alphabet(4);
+    test.add_alphabet(1);
+    test.add_alphabet(7);
+    test.add_alphabet(85);
+    test.add_alphabet(1);
 
-    test.insert(2,1);
-    test.insert(7,1);
 
-    cout << test.max() << '\n';
+    cout << test.recursive_max() << '\n';
     test.print();
     cout<<test.Find(7)<<" ";
+
+    ListaCircular<std::string> list;
+    list.add_alphabet("hello");
+    list.add_alphabet("zucc");
+    list.add_alphabet("banana");
+    list.add_alphabet("friend");
+    list.add_alphabet("apple");
+
+    list.print();
+
 
     return 0;
 }
